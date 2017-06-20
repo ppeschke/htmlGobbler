@@ -15,11 +15,11 @@ public:
 	SelectorTagRequirement targetTag;
 	bool (SelectorTagRelationshipRequirement::*relOp)(DOMElement*);
 	SelectorTagRelationshipRequirement* ancestry;
+	SelectorTagRelationshipRequirement* other;	//for or's
 
 	bool eval(DOMElement* e);
 
 	//relationship ops
-	bool or(DOMElement*);					// ,
 	bool hasAncestor(DOMElement*);			// (space)
 	bool hasDirectAncestor(DOMElement*);	// >
 	bool followedBy(DOMElement*);			// +

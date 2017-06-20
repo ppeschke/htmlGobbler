@@ -6,6 +6,7 @@ SelectorTagRelationshipRequirement::SelectorTagRelationshipRequirement()
 {
 	relOp = nullptr;
 	ancestry = nullptr;
+	other = nullptr;
 }
 
 SelectorTagRelationshipRequirement::SelectorTagRelationshipRequirement(SelectorTagRequirement target, bool(SelectorTagRelationshipRequirement::*op)(DOMElement*), SelectorTagRelationshipRequirement * anc) : targetTag(target)
@@ -18,11 +19,8 @@ SelectorTagRelationshipRequirement::~SelectorTagRelationshipRequirement()
 {
 	if(ancestry != nullptr)
 		delete ancestry;
-}
-
-bool SelectorTagRelationshipRequirement::or(DOMElement* targ)
-{
-	return ancestry->eval(targ);
+	if(other != nullptr)
+		delete other;
 }
 
 bool SelectorTagRelationshipRequirement::hasAncestor(DOMElement* targ)
@@ -85,8 +83,6 @@ SelTagRelFuncPtr SelectorTagRelationshipRequirement::decideOp(string o)
 {
 	if(o == " ")
 		return &hasAncestor;
-	else if(o == ",")
-		return &or ;
 	else if(o == ">")
 		return &hasDirectAncestor;
 	else if(o == "+")
@@ -98,11 +94,12 @@ SelTagRelFuncPtr SelectorTagRelationshipRequirement::decideOp(string o)
 
 bool SelectorTagRelationshipRequirement::eval(DOMElement* e)
 {
-	bool currentTagIsGood = targetTag.eval(e);	//Selector Tag Requirement's eval function
+	bool currentTagIsGood = targetTag.eval(e);	//Selector Tag Requirement's eval function (with Attributes)
 	bool ancestryIsGood = true;
-	if(currentTagIsGood && relOp == &SelectorTagRelationshipRequirement::or)	//optimization: skip evaluation of ancestry if relOp is or and current tag is good
-		return true;
+	bool otherIsGood = false;
 	if(currentTagIsGood && relOp != nullptr)	//optimization: only evaluate relational ancestry if current tag is good
 		ancestryIsGood = (this->*relOp)(e);
-	return currentTagIsGood && ancestryIsGood;
+	if(other != nullptr)
+		otherIsGood = other->eval(e);
+	return (currentTagIsGood && ancestryIsGood) || otherIsGood;
 }

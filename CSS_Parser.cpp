@@ -20,7 +20,7 @@ SelectorTagRelationshipRequirement* CSS_Parser::Parse(TokenStream t)
 		exit(EXIT_FAILURE);
 	}
 	SelectorTagRelationshipRequirement* target = new SelectorTagRelationshipRequirement();
-	SelectorTagRelationshipRequirement* temp;
+	SelectorTagRelationshipRequirement* newTarget;
 	fout << "Parsing..." << endl;
 	ts = t.tokens;
 	bool done = false;
@@ -34,11 +34,23 @@ SelectorTagRelationshipRequirement* CSS_Parser::Parse(TokenStream t)
 		else if(ts[index].name == "relationalOperator")
 		{
 			ts[index].lexeme = shortenOperator(ts[index].lexeme);
-			temp = new SelectorTagRelationshipRequirement();
-			temp->relOp = SelectorTagRelationshipRequirement::decideOp(ts[index].lexeme);
-			temp->ancestry = target;	//push target back into ancestry of temp
-			target = temp;	//update target to be new tag
-			temp = nullptr;	//cleanup because why not?
+			if(ts[index].lexeme == ",")
+			{
+				newTarget = new SelectorTagRelationshipRequirement();
+				newTarget->other = target;
+				target = newTarget;
+				newTarget = nullptr;
+			}
+			else
+			{
+				newTarget = new SelectorTagRelationshipRequirement();
+				newTarget->relOp = SelectorTagRelationshipRequirement::decideOp(ts[index].lexeme);
+				newTarget->ancestry = target;		//push old target back into ancestry of newTarget
+				newTarget->other = target->other;	//move target other to newTarget
+				target->other = nullptr;			//and delete other from old target
+				target = newTarget;					//update target to be new target
+				newTarget = nullptr;				//cleanup because why not?
+			}
 			++index;
 		}
 		else

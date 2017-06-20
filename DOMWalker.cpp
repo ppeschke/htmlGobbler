@@ -39,7 +39,7 @@ void DOMWalker::setDOM(DocumentObjectModel * d)
 list<DOMElement*> DOMWalker::WalkTree(DOMElement * e, const Selector* s)
 {
 	list<DOMElement*> elements;
-	if(s->match(e))
+	if(s->match(e))					//evaluates tag, ancestry, and other
 		elements.push_back(e);
 	for(auto & c : e->children)
 		elements.splice(elements.end(), WalkTree(c, s));

@@ -16,5 +16,6 @@ private:
 	vector<DOMElement*> parseElements(DOMElement* parent, unsigned int& index);
 	Attribute parseAttribute(unsigned int& index);
 	bool searchAncestryFor(DOMElement* parent, string tagname);
+	bool whitespaceOnly(string s);
 };
 

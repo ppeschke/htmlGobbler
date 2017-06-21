@@ -40,8 +40,6 @@ DocumentObjectModel Parser::Parse(TokenStream tknstrm)
 			fout << "Unexpected token \"" << ts[index].name << "\" (" << ts[index].lexeme << ") at line " << ts[index].lineNumber << endl;
 			++index;
 		}
-		/*else if(ts[index].name == "characterData")
-			dom.roots.push_back(parseCharacters(nullptr, index));*/
 	}
 	fout.close();
 	return dom;
@@ -112,9 +110,12 @@ vector<DOMElement*> Parser::parseElements(DOMElement* parent, unsigned int & ind
 		}
 		else if(ts[index].name == "characterData")
 		{
-			DOMElement* TextNode = new DOMElement("TEXTNODE", parent);
-			TextNode->attributes.push_back(Attribute("text", ts[index].lexeme));
-			elements.push_back(TextNode);
+			if(!whitespaceOnly(ts[index].lexeme))
+			{
+				DOMElement* TextNode = new DOMElement("TEXTNODE", parent);
+				TextNode->attributes.push_back(Attribute("text", ts[index].lexeme));
+				elements.push_back(TextNode);
+			}
 			++index;
 		}
 		else if(ts[index].name == "beginEndTag")
@@ -249,4 +250,12 @@ bool Parser::searchAncestryFor(DOMElement * parent, string tagname)
 		parent = parent->parent;
 	}
 	return false;
+}
+
+bool Parser::whitespaceOnly(string s)
+{
+	for(auto & c : s)
+		if(c != ' ' && c != '\t')
+			return false;
+	return true;
 }

@@ -6,6 +6,7 @@
 
 void download();
 string getUrl(int year, string semester, string campus);
+string extractTextNodeValue(DOMElement* e);
 
 int main()
 {
@@ -48,48 +49,35 @@ int main()
 			//and their children are text nodes
 			repeat = false;
 			tsv << session << "\t" << course;
-			if(e->children[0]->children[0]->attributes[0].value == "&nbsp; ")
+			if(extractTextNodeValue(e->children[0]) == "&nbsp; ")
 				repeat = true;
 			if(!repeat)
 			{
-				seats = e->children[0]->children[0]->attributes[0].value;
-				tsv << "\t" << e->children[0]->children[0]->attributes[0].value;	//seats
-				prerequisites = e->children[1]->children[0]->attributes[0].value;
-				tsv << "\t" << e->children[1]->children[0]->attributes[0].value;	//prerequisites
-				enrollment = e->children[3]->children[0]->attributes[0].value;
-				tsv << "\t" << e->children[3]->children[0]->attributes[0].value;	//enrollment
-				synonym = e->children[4]->children[0]->attributes[0].value;
-				tsv << "\t" << e->children[4]->children[0]->attributes[0].value;	//synonym
+				seats = extractTextNodeValue(e->children[0]);
+				prerequisites = extractTextNodeValue(e->children[1]);
+				if(e->children[3]->children[0]->name == "A")
+					enrollment = extractTextNodeValue(e->children[3]->children[0]);	//link
+				else
+					enrollment = extractTextNodeValue(e->children[3]);	//not a link
+				synonym = extractTextNodeValue(e->children[4]);
 			}
-			else
-				tsv << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym;
-			tsv << "\t" << e->children[6]->children[0]->attributes[0].value;	//Lec/Lab
+			tsv << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym;
+
+			tsv << "\t" << extractTextNodeValue(e->children[5]);	//Lec/Lab
+
 			if(!repeat)
-			{
-				section = e->children[7]->children[0]->attributes[0].value;
-				tsv << "\t" << e->children[7]->children[0]->attributes[0].value;	//section
-			}
+				section = extractTextNodeValue(e->children[6]);
+			tsv << "\t" << section;
+
+			tsv << "\t" << extractTextNodeValue(e->children[7]->children[0]);	//campus is a link to campus' page, so one level deeper
+			tsv << "\t" << extractTextNodeValue(e->children[8]);			//building
+			tsv << "\t" << extractTextNodeValue(e->children[8]);	//room
+			tsv << "\t" << extractTextNodeValue(e->children[9]);	//days
+			tsv << "\t" << extractTextNodeValue(e->children[10]);	//times
+			if(e->children[15]->children[0]->name == "A")
+				tsv << "\t" << extractTextNodeValue(e->children[15]->children[0]);	//link
 			else
-				tsv << "\t" << section;
-			if(!repeat)
-				tsv << "\t" << e->children[8]->children[0]->children[0]->attributes[0].value;	//7 is a link to campus' page, so one level deeper
-			else
-				tsv << "\t" << e->children[8]->children[1]->children[0]->attributes[0].value;
-			tsv << "\t" << e->children[9]->children[0]->attributes[0].value;	//building
-			if(!repeat)
-			{
-				tsv << "\t" << e->children[10]->children[0]->attributes[0].value;	//room
-				tsv << "\t" << e->children[11]->children[0]->attributes[0].value;	//days
-				tsv << "\t" << e->children[12]->children[0]->attributes[0].value;	//times
-				tsv << "\t" << e->children[17]->children[0]->attributes[0].value; //instructor
-			}
-			else
-			{
-				tsv << "\t" << e->children[11]->children[0]->attributes[0].value;	//room
-				tsv << "\t" << e->children[12]->children[0]->attributes[0].value;	//days
-				tsv << "\t" << e->children[13]->children[0]->attributes[0].value;	//times
-				tsv << "\t" << e->children[17]->children[0]->attributes[0].value; //instructor
-			}
+				tsv << "\t" << extractTextNodeValue(e->children[15]);	//instructor, not a link
 			tsv << endl;
 		}
 	}
@@ -97,6 +85,16 @@ int main()
 	/*-----------------YARRRGH!-----------------------------------*/
 	system("pause");
 	return 0;
+}
+
+string extractTextNodeValue(DOMElement* e)
+{
+	if(e->children.size() > 0)
+	{
+		if(e->children[0]->name == "TEXTNODE")
+			return e->children[0]->attributes[0].value;
+	}
+	return "";
 }
 
 void download()

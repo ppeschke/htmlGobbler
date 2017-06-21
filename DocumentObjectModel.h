@@ -16,7 +16,7 @@ public:
 
 	friend ostream& operator<<(ostream& out, const DocumentObjectModel& dom);
 
-	list<DOMElement*> roots;
+	vector<DOMElement*> roots;
 };
 
 #endif

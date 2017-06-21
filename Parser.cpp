@@ -31,7 +31,8 @@ DocumentObjectModel Parser::Parse(TokenStream tknstrm)
 
 		if(ts[index].name == "beginScriptTag" || ts[index].name == "beginStartTag" || ts[index].name == "beginScriptTag" || ts[index].name == "beginCommentTag")
 		{
-			dom.roots.splice(dom.roots.end(), parseElements(nullptr, index));
+			vector<DOMElement*> a = parseElements(nullptr, index);
+			dom.roots.insert(dom.roots.end(), a.begin(), a.end());
 		}
 		else
 		{
@@ -48,9 +49,9 @@ DocumentObjectModel Parser::Parse(TokenStream tknstrm)
 
 
 
-list<DOMElement*> Parser::parseElements(DOMElement* parent, unsigned int & index)
+vector<DOMElement*> Parser::parseElements(DOMElement* parent, unsigned int & index)
 {
-	list < DOMElement*> elements;
+	vector < DOMElement*> elements;
 	bool done = false;
 	DOMElement* elem = nullptr;
 	string scriptData;

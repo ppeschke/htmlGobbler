@@ -1,7 +1,7 @@
 #ifndef DOMELEMENT_H
 #define DOMELEMENT_H
 
-#include <list>
+#include <vector>
 #include "Attribute.h"
 
 class DOMElement
@@ -11,7 +11,7 @@ public:
 	~DOMElement();
 	DOMElement* AddChild(string name, DOMElement* parent);
 	void AddChild(DOMElement*);
-	void AddChildren(list<DOMElement*> children);
+	void AddChildren(vector<DOMElement*> children);
 	void decideSelfClose();
 	Attribute* findAttribute(string name);
 	bool isTag(string n);
@@ -19,11 +19,11 @@ public:
 	friend ostream& operator<<(ostream& out, const DOMElement& elem);
 
 	string name;
-	list<Attribute> attributes;
+	vector<Attribute> attributes;
 	DOMElement* parent;
 	bool selfClose;
 
-	list<DOMElement*> children;
+	vector<DOMElement*> children;
 };
 
 #endif

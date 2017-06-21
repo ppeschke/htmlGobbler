@@ -13,7 +13,7 @@ public:
 private:
 	ofstream fout;
 	vector<Token> ts;
-	list<DOMElement*> parseElements(DOMElement* parent, unsigned int& index);
+	vector<DOMElement*> parseElements(DOMElement* parent, unsigned int& index);
 	Attribute parseAttribute(unsigned int& index);
 	bool searchAncestryFor(DOMElement* parent, string tagname);
 };

@@ -1,7 +1,7 @@
 #include "DOMElement.h"
 #include <algorithm>
 
-list<string> selfClosingList = {"!DOCTYPE", "META", "LINK", "IMG", "BR", "HR", "!--"};
+vector<string> selfClosingList = {"!DOCTYPE", "META", "LINK", "IMG", "BR", "HR", "!--"};
 
 DOMElement::DOMElement(string n, DOMElement* p)
 {
@@ -30,9 +30,9 @@ void DOMElement::AddChild(DOMElement * c)
 	children.push_back(c);
 }
 
-void DOMElement::AddChildren(list<DOMElement*> c)
+void DOMElement::AddChildren(vector<DOMElement*> c)
 {
-	children.splice(children.end(), c);
+	children.insert(children.end(), c.begin(), c.end());
 }
 
 void DOMElement::decideSelfClose()
@@ -47,7 +47,7 @@ void DOMElement::decideSelfClose()
 Attribute * DOMElement::findAttribute(string name)
 {
 	Attribute* found = nullptr;
-	for(list<Attribute>::iterator index = attributes.begin(); !found && index != attributes.end(); ++index)
+	for(vector<Attribute>::iterator index = attributes.begin(); !found && index != attributes.end(); ++index)
 	{
 		if(index->name == name)
 			found = &(*index);	//change index from iterator to Attribute*

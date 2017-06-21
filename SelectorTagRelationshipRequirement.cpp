@@ -45,9 +45,9 @@ bool SelectorTagRelationshipRequirement::followedBy(DOMElement* targ)
 {
 	if(targ->parent)
 	{
-		list<DOMElement*> children = targ->parent->children;
+		vector<DOMElement*> children = targ->parent->children;
 		//find ourselves again
-		list<DOMElement*>::iterator i;
+		vector<DOMElement*>::iterator i;
 		for(i = children.begin(); i != children.end(); ++i)
 		{
 			if((*i) == targ)
@@ -64,9 +64,9 @@ bool SelectorTagRelationshipRequirement::preceededBy(DOMElement* targ)
 {
 	if(targ->parent)
 	{
-		list<DOMElement*> children = targ->parent->children;
+		vector<DOMElement*> children = targ->parent->children;
 		//find ourselves again
-		list<DOMElement*>::iterator i;
+		vector<DOMElement*>::iterator i;
 		for(i = children.begin(); i != children.end(); ++i)
 		{
 			if((*i) == targ)

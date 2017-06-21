@@ -13,20 +13,23 @@ DOMWalker::~DOMWalker()
 {
 }
 
-list<DOMElement*> DOMWalker::find(string css)
+vector<DOMElement*> DOMWalker::find(string css)
 {
 	Selector sel(css);
 	return find(sel);
 }
 
-list<DOMElement*> DOMWalker::find(const Selector& s)
+vector<DOMElement*> DOMWalker::find(const Selector& s)
 {
-	list<DOMElement*> elements;
+	vector<DOMElement*> elements;
 
 	if(!dom)
 		return elements;
 	for(auto & r : dom->roots)
-		elements.splice(elements.end(), WalkTree(r, &s));
+	{
+		vector<DOMElement*> a = WalkTree(r, &s);
+		elements.insert(elements.end(), a.begin(), a.end());
+	}
 
 	return elements;
 }
@@ -36,12 +39,15 @@ void DOMWalker::setDOM(DocumentObjectModel * d)
 	dom = d;
 }
 
-list<DOMElement*> DOMWalker::WalkTree(DOMElement * e, const Selector* s)
+vector<DOMElement*> DOMWalker::WalkTree(DOMElement * e, const Selector* s)
 {
-	list<DOMElement*> elements;
+	vector<DOMElement*> elements;
 	if(s->match(e))					//evaluates tag, ancestry, and other
 		elements.push_back(e);
 	for(auto & c : e->children)
-		elements.splice(elements.end(), WalkTree(c, s));
+	{
+		vector<DOMElement*> a = WalkTree(c, s);
+		elements.insert(elements.end(), a.begin(), a.end());
+	}
 	return elements;
 }

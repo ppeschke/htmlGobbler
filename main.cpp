@@ -10,22 +10,91 @@ string getUrl(int year, string semester, string campus);
 int main()
 {
 	//download();
-	Lexer l;
 	cout << fixed << showpoint << setprecision(3);
-	TokenStream toks;
-	Parser p;
-	DocumentObjectModel dom;
-	DOMWalker dw;
-	list<DOMElement*> descriptionText;
-	toks = l.Lex("test.htm");
-	dom = p.Parse(toks);
-	dw.setDOM(&dom);
-	descriptionText = dw.find("a[title=\"Course Description\"]>TextNode, p.teach_term>TextNode");
-	for(auto & dl : descriptionText)
+	DocumentObjectModel dom = Parser().Parse(Lexer().Lex("schedule.htm"));
+	/*-----------------HERE BE THE PROCESSING SCRIPT--------------*/
+	ofstream tsv("output.tsv");
+	if(tsv.fail())
 	{
-		for(auto & at : dl->attributes)
-			cout << at.value << endl;
+		cout << "Failed to open TV file!" << endl;
+		cout << "Aborting..." << endl;
+		system("pause");
+		exit(EXIT_FAILURE);
 	}
+	tsv << "Session\tCourse\tOpen Seats\tPrerequisites\tEnrollment\tSynonym\tLecLab\tSection\tCampus\tBuilding\tRoom\tDays\tTimes\tInstructor" << endl;
+	DOMWalker dw;
+	vector<DOMElement*> elements;
+	dw.setDOM(&dom);
+	elements = dw.find("a[title=\"Course Description\"]>TextNode, p.teach_term>TextNode, table.section_line tr");
+	string session = "";
+	string course = "";
+	string section, synonym, prerequisites, enrollment, seats = "";
+	bool repeat = false;
+	for(auto & e : elements)
+	{
+		if(e->parent->name == "A")
+		{
+			course = e->attributes[0].value;
+			cout << "Course: " << course << endl;
+		}
+		else if(e->parent->name == "P")
+		{
+			session = e->attributes[0].value;
+			cout << "Session: " << session << endl;
+		}
+		else
+		{	//e is a tr element
+			//so, children are td elements
+			//and their children are text nodes
+			repeat = false;
+			tsv << session << "\t" << course;
+			if(e->children[0]->children[0]->attributes[0].value == "&nbsp; ")
+				repeat = true;
+			if(!repeat)
+			{
+				seats = e->children[0]->children[0]->attributes[0].value;
+				tsv << "\t" << e->children[0]->children[0]->attributes[0].value;	//seats
+				prerequisites = e->children[1]->children[0]->attributes[0].value;
+				tsv << "\t" << e->children[1]->children[0]->attributes[0].value;	//prerequisites
+				enrollment = e->children[3]->children[0]->attributes[0].value;
+				tsv << "\t" << e->children[3]->children[0]->attributes[0].value;	//enrollment
+				synonym = e->children[4]->children[0]->attributes[0].value;
+				tsv << "\t" << e->children[4]->children[0]->attributes[0].value;	//synonym
+			}
+			else
+				tsv << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym;
+			tsv << "\t" << e->children[6]->children[0]->attributes[0].value;	//Lec/Lab
+			if(!repeat)
+			{
+				section = e->children[7]->children[0]->attributes[0].value;
+				tsv << "\t" << e->children[7]->children[0]->attributes[0].value;	//section
+			}
+			else
+				tsv << "\t" << section;
+			if(!repeat)
+				tsv << "\t" << e->children[8]->children[0]->children[0]->attributes[0].value;	//7 is a link to campus' page, so one level deeper
+			else
+				tsv << "\t" << e->children[8]->children[1]->children[0]->attributes[0].value;
+			tsv << "\t" << e->children[9]->children[0]->attributes[0].value;	//building
+			if(!repeat)
+			{
+				tsv << "\t" << e->children[10]->children[0]->attributes[0].value;	//room
+				tsv << "\t" << e->children[11]->children[0]->attributes[0].value;	//days
+				tsv << "\t" << e->children[12]->children[0]->attributes[0].value;	//times
+				tsv << "\t" << e->children[17]->children[0]->attributes[0].value; //instructor
+			}
+			else
+			{
+				tsv << "\t" << e->children[11]->children[0]->attributes[0].value;	//room
+				tsv << "\t" << e->children[12]->children[0]->attributes[0].value;	//days
+				tsv << "\t" << e->children[13]->children[0]->attributes[0].value;	//times
+				tsv << "\t" << e->children[17]->children[0]->attributes[0].value; //instructor
+			}
+			tsv << endl;
+		}
+	}
+	tsv.close();
+	/*-----------------YARRRGH!-----------------------------------*/
 	system("pause");
 	return 0;
 }

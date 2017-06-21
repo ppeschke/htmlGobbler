@@ -99,7 +99,7 @@ bool SelectorTagRelationshipRequirement::eval(DOMElement* e)
 	bool otherIsGood = false;
 	if(currentTagIsGood && relOp != nullptr)	//optimization: only evaluate relational ancestry if current tag is good
 		ancestryIsGood = (this->*relOp)(e);
-	if(other != nullptr)
+	if(!(currentTagIsGood && ancestryIsGood) && other != nullptr)	//optimization: only evaluate other if currentTag or ancestry didn't pass
 		otherIsGood = other->eval(e);
 	return (currentTagIsGood && ancestryIsGood) || otherIsGood;
 }

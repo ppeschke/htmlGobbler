@@ -13,6 +13,7 @@ SelectorTagRelationshipRequirement::SelectorTagRelationshipRequirement(SelectorT
 {
 	relOp = op;
 	ancestry = anc;
+	other = nullptr;
 }
 
 SelectorTagRelationshipRequirement::~SelectorTagRelationshipRequirement()

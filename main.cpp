@@ -31,6 +31,13 @@ int main()
 	dw.setDOM(&dom);
 	elements = dw.find("a[title=\"Course Description\"]>TextNode, p.teach_term>TextNode, table.section_line tr");
 	string session, course, section, synonym, prerequisites, enrollment, seats, lecLab, campus, building, room, days, times, instructor;
+	string rubric;
+	string number;
+	string courseName;
+	vector<string> meetings;
+	string sessionStart;
+	string sessionEnd;
+	unsigned int delim;
 	bool repeat = false;
 	for(auto & e : elements)
 	{
@@ -38,11 +45,18 @@ int main()
 		{
 			course = e->attributes[0].value;
 			cout << "Course: " << course << endl;
+			rubric = course.substr(0, 4);
+			number = course.substr(5, 9);
+			courseName = course.substr(10);
 		}
 		else if(e->parent->name == "P")
 		{
 			session = e->attributes[0].value;
 			cout << "Session: " << session << endl;
+			delim = session.find(": ");
+			sessionStart = session.substr(delim + 2, session.find(" -") - delim - 2);
+			delim = session.find("-");
+			sessionEnd = session.substr(delim + 2);
 		}
 		else
 		{	//e is a tr element
@@ -76,16 +90,56 @@ int main()
 			else
 				instructor = extractTextNodeValue(e->children[15]);
 
+
+
+			//DATA PROCESSING
+			string startTime = times.substr(1, times.find("-") - 1);
+			string endTime = times.substr(times.find("-") + 1);
+			if(!repeat)
+			{
+				synonym = synonym.substr(1, 5);
+				section = section.substr(1, 3);
+				enrollment = enrollment.substr(1, enrollment.size() - 2);
+			}
+			if(room != "")
+				room = room.substr(1);	//remove space before room
+			days = days.substr(1);		//and days
+			lecLab = lecLab.substr(1);		//and lecture/lab/practicum
+			meetings.clear();
+			if(days != "TBA")
+			{
+				string temp = "";
+				for(auto & c : days)
+				{
+					if(isupper(c))
+					{
+						if(temp != "")
+							meetings.push_back(temp);
+						temp = c;
+					}
+					else
+						temp += c;
+				}
+				meetings.push_back(temp);
+			}
+			else
+				meetings.push_back("TBA");
+
+
+
 			//OUTPUT
 			tsv << session << "\t" << course << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym
 				<< "\t" << lecLab << "\t" << section << "\t" << campus << "\t" << building << "\t" << room << "\t" << days
 				<< "\t" << times << "\t" << instructor << endl;
 
-			js << "courses.push(new Course(" << quotesWithComma(session) << quotesWithComma(course) << quotesWithComma(seats)
-				<< quotesWithComma(prerequisites) << quotesWithComma(enrollment) << quotesWithComma(synonym)
-				<< quotesWithComma(lecLab) << quotesWithComma(section) << quotesWithComma(campus) << quotesWithComma(building)
-				<< quotesWithComma(room) << quotesWithComma(days) << quotesWithComma(times) << wrapInQuotes(instructor);
-			js << "));" << endl;
+			for(auto & m : meetings)
+			{
+				js << "courses.push(new Course(" << quotesWithComma(sessionStart) << quotesWithComma(sessionEnd) << quotesWithComma(rubric)
+					<< quotesWithComma(courseName) << quotesWithComma(seats) << quotesWithComma(enrollment) << quotesWithComma(synonym)
+					<< quotesWithComma(lecLab) << quotesWithComma(section) << quotesWithComma(campus) << quotesWithComma(building)
+					<< quotesWithComma(room) << quotesWithComma(m) << quotesWithComma(startTime) << quotesWithComma(endTime) << wrapInQuotes(instructor)
+					<< "));" << endl;
+			}
 		}
 	}
 	tsv.close();

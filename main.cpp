@@ -7,6 +7,8 @@
 void download();
 string getUrl(int year, string semester, string campus);
 string extractTextNodeValue(DOMElement* e);
+string wrapInQuotes(string s);
+string quotesWithComma(string s);
 
 int main()
 {
@@ -15,9 +17,10 @@ int main()
 	DocumentObjectModel dom = Parser().Parse(Lexer().Lex("schedule.htm"));
 	/*-----------------HERE BE THE PROCESSING SCRIPT--------------*/
 	ofstream tsv("output.tsv");
-	if(tsv.fail())
+	ofstream js("courses.js");
+	if(tsv.fail() || js.fail())
 	{
-		cout << "Failed to open TV file!" << endl;
+		cout << "Failed to open .tsv or .js file!" << endl;
 		cout << "Aborting..." << endl;
 		system("pause");
 		exit(EXIT_FAILURE);
@@ -49,6 +52,7 @@ int main()
 			//and their children are text nodes
 			repeat = false;
 			tsv << session << "\t" << course;
+			js << "courses.push(new Course(" << quotesWithComma(session) << quotesWithComma(course);
 			if(extractTextNodeValue(e->children[0]) == "&nbsp; ")
 				repeat = true;
 			if(!repeat)
@@ -62,29 +66,57 @@ int main()
 				synonym = extractTextNodeValue(e->children[4]);
 			}
 			tsv << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym;
+			js << quotesWithComma(seats) << quotesWithComma(prerequisites) << quotesWithComma(enrollment) << quotesWithComma(synonym);
 
 			tsv << "\t" << extractTextNodeValue(e->children[5]);	//Lec/Lab
+			js << quotesWithComma(extractTextNodeValue(e->children[5]));
 
 			if(!repeat)
 				section = extractTextNodeValue(e->children[6]);
 			tsv << "\t" << section;
+			js << quotesWithComma(section);
 
 			tsv << "\t" << extractTextNodeValue(e->children[7]->children[0]);	//campus is a link to campus' page, so one level deeper
+			js << quotesWithComma(extractTextNodeValue(e->children[7]->children[0]));
+
 			tsv << "\t" << extractTextNodeValue(e->children[8]);			//building
-			tsv << "\t" << extractTextNodeValue(e->children[8]);	//room
-			tsv << "\t" << extractTextNodeValue(e->children[9]);	//days
-			tsv << "\t" << extractTextNodeValue(e->children[10]);	//times
+			js << quotesWithComma(extractTextNodeValue(e->children[8]));
+
+			tsv << "\t" << extractTextNodeValue(e->children[9]);	//room
+			js << quotesWithComma(extractTextNodeValue(e->children[9]));
+			tsv << "\t" << extractTextNodeValue(e->children[10]);	//days
+			js << quotesWithComma(extractTextNodeValue(e->children[10]));
+			tsv << "\t" << extractTextNodeValue(e->children[11]);	//times
+			js << quotesWithComma(extractTextNodeValue(e->children[11]));
 			if(e->children[15]->children[0]->name == "A")
+			{
 				tsv << "\t" << extractTextNodeValue(e->children[15]->children[0]);	//link
+				js << wrapInQuotes(extractTextNodeValue(e->children[10]));
+			}
 			else
+			{
 				tsv << "\t" << extractTextNodeValue(e->children[15]);	//instructor, not a link
+				js << wrapInQuotes(extractTextNodeValue(e->children[15]));
+			}
 			tsv << endl;
+			js << "));" << endl;
 		}
 	}
 	tsv.close();
+	js.close();
 	/*-----------------YARRRGH!-----------------------------------*/
 	system("pause");
 	return 0;
+}
+
+inline string wrapInQuotes(string s)
+{
+	return "\"" + s + "\"";
+}
+
+inline string quotesWithComma(string s)
+{
+	return wrapInQuotes(s) + ", ";
 }
 
 string extractTextNodeValue(DOMElement* e)

@@ -74,7 +74,6 @@ TokenStream Lexer::Lex(string filename)
 	const string lines = open(filename, count);
 	smatch m;
 	bool found;
-	float lastProgress = 0;
 	fout << "Line Number  Token                      String" << endl;
 	fout << "----------------------------------------------" << endl;
 	cout << setprecision(2) << fixed << showpoint;

@@ -59,7 +59,6 @@ TokenStream CSS_Lexer::Lex(string line, unsigned int count)
 	const string lines = line;
 	smatch m;
 	bool found;
-	float lastProgress = 0;
 	fout << "Line Number  Token                      String" << endl;
 	fout << "----------------------------------------------" << endl;
 	cout << setprecision(2) << fixed << showpoint;

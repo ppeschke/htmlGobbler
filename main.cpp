@@ -46,14 +46,14 @@ int main()
 			course = e->attributes[0].value;
 			cout << "Course: " << course << endl;
 			rubric = course.substr(0, 4);
-			number = course.substr(5, 9);
+			number = course.substr(5, 4);
 			courseName = course.substr(10);
 		}
 		else if(e->parent->name == "P")
 		{
 			session = e->attributes[0].value;
 			cout << "Session: " << session << endl;
-			delim = session.find(": ");
+			delim = session.find(":");
 			sessionStart = session.substr(delim + 2, session.find(" -") - delim - 2);
 			delim = session.find("-");
 			sessionEnd = session.substr(delim + 2);

@@ -30,9 +30,7 @@ int main()
 	vector<DOMElement*> elements;
 	dw.setDOM(&dom);
 	elements = dw.find("a[title=\"Course Description\"]>TextNode, p.teach_term>TextNode, table.section_line tr");
-	string session = "";
-	string course = "";
-	string section, synonym, prerequisites, enrollment, seats = "";
+	string session, course, section, synonym, prerequisites, enrollment, seats, lecLab, campus, building, room, days, times, instructor;
 	bool repeat = false;
 	for(auto & e : elements)
 	{
@@ -50,9 +48,9 @@ int main()
 		{	//e is a tr element
 			//so, children are td elements
 			//and their children are text nodes
+
+			//DATA EXTRACTION
 			repeat = false;
-			tsv << session << "\t" << course;
-			js << "courses.push(new Course(" << quotesWithComma(session) << quotesWithComma(course);
 			if(extractTextNodeValue(e->children[0]) == "&nbsp; ")
 				repeat = true;
 			if(!repeat)
@@ -65,40 +63,28 @@ int main()
 					enrollment = extractTextNodeValue(e->children[3]);	//not a link
 				synonym = extractTextNodeValue(e->children[4]);
 			}
-			tsv << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym;
-			js << quotesWithComma(seats) << quotesWithComma(prerequisites) << quotesWithComma(enrollment) << quotesWithComma(synonym);
-
-			tsv << "\t" << extractTextNodeValue(e->children[5]);	//Lec/Lab
-			js << quotesWithComma(extractTextNodeValue(e->children[5]));
-
+			lecLab = extractTextNodeValue(e->children[5]);
 			if(!repeat)
 				section = extractTextNodeValue(e->children[6]);
-			tsv << "\t" << section;
-			js << quotesWithComma(section);
-
-			tsv << "\t" << extractTextNodeValue(e->children[7]->children[0]);	//campus is a link to campus' page, so one level deeper
-			js << quotesWithComma(extractTextNodeValue(e->children[7]->children[0]));
-
-			tsv << "\t" << extractTextNodeValue(e->children[8]);			//building
-			js << quotesWithComma(extractTextNodeValue(e->children[8]));
-
-			tsv << "\t" << extractTextNodeValue(e->children[9]);	//room
-			js << quotesWithComma(extractTextNodeValue(e->children[9]));
-			tsv << "\t" << extractTextNodeValue(e->children[10]);	//days
-			js << quotesWithComma(extractTextNodeValue(e->children[10]));
-			tsv << "\t" << extractTextNodeValue(e->children[11]);	//times
-			js << quotesWithComma(extractTextNodeValue(e->children[11]));
+			campus = extractTextNodeValue(e->children[7]->children[0]);
+			building = extractTextNodeValue(e->children[8]);
+			room = extractTextNodeValue(e->children[9]);
+			days = extractTextNodeValue(e->children[10]);
+			times = extractTextNodeValue(e->children[11]);
 			if(e->children[15]->children[0]->name == "A")
-			{
-				tsv << "\t" << extractTextNodeValue(e->children[15]->children[0]);	//link
-				js << wrapInQuotes(extractTextNodeValue(e->children[10]));
-			}
+				instructor = extractTextNodeValue(e->children[15]->children[0]);
 			else
-			{
-				tsv << "\t" << extractTextNodeValue(e->children[15]);	//instructor, not a link
-				js << wrapInQuotes(extractTextNodeValue(e->children[15]));
-			}
-			tsv << endl;
+				instructor = extractTextNodeValue(e->children[15]);
+
+			//OUTPUT
+			tsv << session << "\t" << course << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym
+				<< "\t" << lecLab << "\t" << section << "\t" << campus << "\t" << building << "\t" << room << "\t" << days
+				<< "\t" << times << "\t" << instructor << endl;
+
+			js << "courses.push(new Course(" << quotesWithComma(session) << quotesWithComma(course) << quotesWithComma(seats)
+				<< quotesWithComma(prerequisites) << quotesWithComma(enrollment) << quotesWithComma(synonym)
+				<< quotesWithComma(lecLab) << quotesWithComma(section) << quotesWithComma(campus) << quotesWithComma(building)
+				<< quotesWithComma(room) << quotesWithComma(days) << quotesWithComma(times) << wrapInQuotes(instructor);
 			js << "));" << endl;
 		}
 	}

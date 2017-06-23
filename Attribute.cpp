@@ -44,7 +44,7 @@ bool Attribute::attributeContainsWord(string v)
 {
 	return value == v
 		|| value.find(v + ' ') == 0
-		|| value.find(' ' + v) == (value.size() - (v.size() + 1))
+		|| value.find(' ' + v) != -1 && value.find(' ' + v) == (value.size() - (v.size() + 1))
 		|| value.find(' ' + v + ' ') != -1;
 }
 

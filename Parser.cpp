@@ -29,7 +29,7 @@ DocumentObjectModel Parser::Parse(TokenStream tknstrm)
 	while(index != size)
 	{
 
-		if(ts[index].name == "beginScriptTag" || ts[index].name == "beginStartTag" || ts[index].name == "beginScriptTag" || ts[index].name == "beginCommentTag")
+		if(ts[index].name == "beginScriptTag" || ts[index].name == "beginStartTag" || ts[index].name == "beginCommentTag")
 		{
 			vector<DOMElement*> a = parseElements(nullptr, index);
 			dom.roots.insert(dom.roots.end(), a.begin(), a.end());

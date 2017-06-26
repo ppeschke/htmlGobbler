@@ -32,7 +32,7 @@ bool Attribute::attributeStartsWithWord(string v)
 
 bool Attribute::attributeEndsWith(string v)
 {
-	return value.find(v) == (value.size() - v.size());
+	return value.find(v) != -1 && value.find(v) == (value.size() - v.size());
 }
 
 bool Attribute::attributeContains(string v)

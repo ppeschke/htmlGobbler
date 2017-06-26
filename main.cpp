@@ -12,7 +12,12 @@ string quotesWithComma(string s);
 
 int main()
 {
-	//download();
+	cout << "Download fresh schedule? (y/n)" << endl;
+	char response;
+	cin >> response;
+	response = tolower(response);
+	if(response == 'y')
+		download();
 	cout << fixed << showpoint << setprecision(3);
 	DocumentObjectModel dom = Parser().Parse(Lexer().Lex("schedule.htm"));
 	/*-----------------HERE BE THE PROCESSING SCRIPT--------------*/
@@ -128,17 +133,20 @@ int main()
 
 
 			//OUTPUT
-			tsv << session << "\t" << course << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym
-				<< "\t" << lecLab << "\t" << section << "\t" << campus << "\t" << building << "\t" << room << "\t" << days
-				<< "\t" << times << "\t" << instructor << endl;
-
-			for(auto & m : meetings)
+			if(seats != "X")
 			{
-				js << "courses.push(new Course(" << quotesWithComma(sessionStart) << quotesWithComma(sessionEnd) << quotesWithComma(rubric)
-					<< quotesWithComma(courseName) << quotesWithComma(seats) << quotesWithComma(enrollment) << quotesWithComma(synonym)
-					<< quotesWithComma(lecLab) << quotesWithComma(section) << quotesWithComma(campus) << quotesWithComma(building)
-					<< quotesWithComma(room) << quotesWithComma(m) << quotesWithComma(startTime) << quotesWithComma(endTime) << wrapInQuotes(instructor)
-					<< "));" << endl;
+				tsv << session << "\t" << course << "\t" << seats << "\t" << prerequisites << "\t" << enrollment << "\t" << synonym
+					<< "\t" << lecLab << "\t" << section << "\t" << campus << "\t" << building << "\t" << room << "\t" << days
+					<< "\t" << times << "\t" << instructor << endl;
+
+				for(auto & m : meetings)
+				{
+					js << "courses.push(new Course(" << quotesWithComma(sessionStart) << quotesWithComma(sessionEnd) << quotesWithComma(rubric)
+						<< quotesWithComma(courseName) << quotesWithComma(seats) << quotesWithComma(enrollment) << quotesWithComma(synonym)
+						<< quotesWithComma(lecLab) << quotesWithComma(section) << quotesWithComma(campus) << quotesWithComma(building)
+						<< quotesWithComma(room) << quotesWithComma(m) << quotesWithComma(startTime) << quotesWithComma(endTime) << wrapInQuotes(instructor)
+						<< "));" << endl;
+				}
 			}
 		}
 	}

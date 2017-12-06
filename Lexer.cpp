@@ -29,7 +29,7 @@ Lexer::Lexer()
 	states[dqValue].AddLexeme("attributeValue", "[^\"]{1,}", dqValue);
 	states[commentTag] = State(commentTag);
 	states[commentTag].AddLexeme("finishCommentTag", "-->", start);
-	states[commentTag].AddLexeme("commentData", "[A-Za-z !:\\.0-9\t]*", commentTag);
+	states[commentTag].AddLexeme("commentData", "[A-Za-z !%:\\.0-9\t_\\*}{]+", commentTag);
 	states[commentTag].AddLexeme("commentData", "-", commentTag);	//last so it doesn't match if this is the beginning of the end
 	states[inScriptTag] = State(inScriptTag);
 	states[inScriptTag].AddLexeme("finishTag", ">", inScript);
@@ -71,6 +71,8 @@ TokenStream Lexer::Lex(string filename)
 	unsigned int currentState = start;
 	int lineNumber = 1;
 	unsigned int count = 0;
+	int percent = 0;
+	int oldPercent = -1;
 	const string lines = open(filename, count);
 	smatch m;
 	bool found;
@@ -87,6 +89,7 @@ TokenStream Lexer::Lex(string filename)
 			if(regex_search(subStart, lines.end(), m, (*lexemes)[lindex].r, regex_constants::match_continuous))
 			{
 				fout << setw(11) << right << lineNumber << "  " << setw(25) << left << (*lexemes)[lindex].name << "  " << m[0] << endl;
+				//cout << setw(11) << right << lineNumber << "  " << setw(25) << left << (*lexemes)[lindex].name << "  " << m[0] << endl;
 				ts.AddToken(Token(lineNumber, (*lexemes)[lindex].name, m[0]));
 				i += m[0].length() - 1;
 				subStart += m[0].length() - 1;
@@ -101,6 +104,12 @@ TokenStream Lexer::Lex(string filename)
 		if(*subStart == '\n')
 			++lineNumber;
 		++subStart;
+		percent = (lineNumber / (float)count) * 100;
+		if(percent != oldPercent)
+		{
+			cout << percent << "%" << endl;
+			oldPercent = percent;
+		}
 	}
 	fout.close();
 	return ts;

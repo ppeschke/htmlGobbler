@@ -3,6 +3,7 @@
 #include "Parser.h"
 #include "DOMWalker.h"
 #include <iomanip>
+#include <Windows.h>
 
 void download();
 string getUrl(int year, string semester, string campus);
@@ -58,9 +59,9 @@ int main()
 		{
 			session = e->attributes[0].value;
 			cout << "Session: " << session << endl;
-			delim = session.find(":");
+			delim = (unsigned int)session.find(":");
 			sessionStart = session.substr(delim + 2, session.find(" -") - delim - 2);
-			delim = session.find("-");
+			delim = (unsigned int)session.find("-");
 			sessionEnd = session.substr(delim + 2);
 		}
 		else
@@ -252,4 +253,39 @@ string getUrl(int iYear, string semester, string campus)
 	}
 	string url = "http://www6.austincc.edu/schedule/index.php?op=browse&opclass=ViewSched_location&term=" + term + "&locationid=" + location + "&yr=" + year + "&ct=CC%27%3E";
 	return url;
+}
+
+void setColor(unsigned short color)
+{
+	/*
+	0	BLACK
+	1	BLUE
+	2	GREEN
+	3	CYAN
+	4	RED
+	5	MAGENTA
+	6	BROWN
+	7	LIGHTGRAY
+	8	DARKGRAY
+	9	LIGHTBLUE
+	10	LIGHTGREEN
+	11	LIGHTCYAN
+	12	LIGHTRED
+	13	LIGHTMAGENTA
+	14	YELLOW
+	15	WHITE
+	*/
+	HANDLE hcon = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hcon, color);
+	return;
+}
+
+void gotoXY(unsigned short xpos, unsigned short ypos)
+{
+	COORD scrn;
+	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	scrn.X = xpos;
+	scrn.Y = ypos;
+	SetConsoleCursorPosition(hOutput, scrn);
+	return;
 }

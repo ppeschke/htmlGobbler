@@ -4,6 +4,8 @@
 
 #include "Lexer.h"
 
+void gotoXY(unsigned short, unsigned short);
+
 Lexer::Lexer()
 {
 	states[start] = State(start);
@@ -65,14 +67,20 @@ TokenStream Lexer::Lex(string filename)
 		system("pause");
 		exit(EXIT_FAILURE);
 	}
+	system("cls");
 	cout << "Lexing..." << endl;
 	fout << "Lexing..." << endl;
+	gotoXY(0, 1);
+	cout << '[';
+	gotoXY(21, 1);
+	cout << ']';
 	TokenStream ts;
 	unsigned int currentState = start;
 	int lineNumber = 1;
 	unsigned int count = 0;
-	int percent = 0;
-	int oldPercent = -1;
+	short percent = 0;
+	short oldPercent = -1;
+	short fivesPercent = 0;
 	const string lines = open(filename, count);
 	smatch m;
 	bool found;
@@ -91,7 +99,7 @@ TokenStream Lexer::Lex(string filename)
 				fout << setw(11) << right << lineNumber << "  " << setw(25) << left << (*lexemes)[lindex].name << "  " << m[0] << endl;
 				//cout << setw(11) << right << lineNumber << "  " << setw(25) << left << (*lexemes)[lindex].name << "  " << m[0] << endl;
 				ts.AddToken(Token(lineNumber, (*lexemes)[lindex].name, m[0]));
-				i += m[0].length() - 1;
+				i += (unsigned int)(m[0].length() - 1);
 				subStart += m[0].length() - 1;
 				currentState = (*lexemes)[lindex].moveTo;
 				found = true;
@@ -104,13 +112,21 @@ TokenStream Lexer::Lex(string filename)
 		if(*subStart == '\n')
 			++lineNumber;
 		++subStart;
-		percent = (lineNumber / (float)count) * 100;
-		if(percent != oldPercent)
+		percent = (short)((lineNumber / (float)count) * 100);
+		if(percent != oldPercent)	//if percentage has changed
 		{
-			cout << percent << "%" << endl;
+			fivesPercent = percent / 5;	//update counter by fives (integer division)
+			if(fivesPercent > 0)
+			{
+				gotoXY(fivesPercent, 1);
+				cout << (char)219;
+			}
+			gotoXY(23, 1);
+			cout << percent << "%";
 			oldPercent = percent;
 		}
 	}
+	cout << endl;
 	fout.close();
 	return ts;
 }

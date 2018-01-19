@@ -13,7 +13,7 @@ public:
 	State();
 	State(unsigned int s);
 	~State();
-	void AddLexeme(string name, string regx, unsigned int ls);
+	void AddLexeme(string name, string regx, unsigned int ls, bool complex);
 	vector<Lexeme>* getLexemes();
 
 private:

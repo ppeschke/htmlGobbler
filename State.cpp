@@ -13,9 +13,9 @@ State::~State()
 {
 }
 
-void State::AddLexeme(string n, string regx, unsigned int ls)
+void State::AddLexeme(string n, string regx, unsigned int ls, bool complex)
 {
-	lexemes.push_back(Lexeme(n, regx, ls));
+	lexemes.push_back(Lexeme(n, regx, ls, complex));
 }
 
 vector<Lexeme>* State::getLexemes()

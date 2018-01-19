@@ -20,7 +20,9 @@ int main()
 	if(response == 'y')
 		download();
 	cout << fixed << showpoint << setprecision(3);
-	DocumentObjectModel dom = Parser().Parse(Lexer().Lex("schedule.htm"));
+	DocumentObjectModel dom = Parser().Parse(
+		Lexer().Lex("schedule.htm")
+	);
 	/*-----------------HERE BE THE PROCESSING SCRIPT--------------*/
 	ofstream tsv("output.tsv");
 	ofstream js("courses.js");

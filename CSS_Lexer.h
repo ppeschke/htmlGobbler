@@ -1,14 +1,16 @@
 #pragma once
-#include "Lexer.h"
 
-class CSS_Lexer : public Lexer
+#include "State.h"
+#include "TokenStream.h"
+
+class CSS_Lexer
 {
 public:
 	CSS_Lexer();
-	virtual ~CSS_Lexer();
+	~CSS_Lexer();
 	TokenStream Lex(string text, unsigned int count = 1);
 
 private:
-	State states[10];
+	State css_states[10];
 };
 

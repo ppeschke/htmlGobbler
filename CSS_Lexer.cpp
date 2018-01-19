@@ -7,35 +7,34 @@ using namespace std;
 
 CSS_Lexer::CSS_Lexer()
 {
-	states[betweenTags] = State(betweenTags);
-	states[betweenTags].AddLexeme("tagName", "[A-Za-z]{1,}[1-6]?", betweenTags);
-	states[betweenTags].AddLexeme("classNamePeriod", "\\.", inClassName);
-	states[betweenTags].AddLexeme("idNamePoundSign", "#", inIdName);
-	states[betweenTags].AddLexeme("attributeStartBracket", "\\[", inAttributeName);
-	states[betweenTags].AddLexeme("relationalOperator", "[ ]?[,>+~]{1,1}[ ]?", betweenTags);
-	states[betweenTags].AddLexeme("relationalOperator", "[ ]{1,}", betweenTags);
-	states[inClassName] = State(inClassName);
-	states[inClassName].AddLexeme("className", "[a-zA-z\\-_]{1,}[a-zA-z\\-_0-9]?", betweenTags);
-	states[inClassName].AddLexeme("attributeStartBracket", "\\[", inAttributeName);
-	states[inIdName].AddLexeme("idName", "[a-zA-z\\-_]{1,}[a-zA-z\\-_0-9]?", betweenTags);
-	states[inIdName].AddLexeme("attributeStartBracket", "\\[", inAttributeName);
-	states[inAttributeName] = State(inAttributeName);
-	states[inAttributeName].AddLexeme("attributeName", "[a-zA-z\\-_]{1,}[a-zA-z\\-_0-9]?", inAttributeOperator);
-	states[inAttributeOperator] = State(inAttributeOperator);
-	states[inAttributeOperator].AddLexeme("attributeOperator", "[~\\|\\$\\^\\*]?=", inAttributeOperator);
-	states[inAttributeOperator].AddLexeme("singleQuote", "'", inSqValue);
-	states[inAttributeOperator].AddLexeme("doubleQuote", "\\\"", inDqValue);
-	states[inAttributeOperator].AddLexeme("attributeValue", "[a-zA-z\\-\\._0-9]{1,}", inValue);
-	states[inAttributeOperator].AddLexeme("attributeEndBracket", "\\]", betweenTags);
-	states[inValue] = State(inValue);
-	states[inValue].AddLexeme("attributeEndBracket", "\\]", betweenTags);
-	states[inSqValue] = State(inSqValue);
-	states[inSqValue].AddLexeme("attributeValue", "[a-zA-z \\-\\._0-9]{1,}", inSqValue);
-	states[inSqValue].AddLexeme("singleQuote", "'", inValue);	//this should pick up the close bracket properly
-	states[inDqValue] = State(inDqValue);
-	states[inDqValue].AddLexeme("attributeValue", "[a-zA-z \\-\\._0-9]{1,}", inDqValue);
-	states[inDqValue].AddLexeme("doubleQuote", "\\\"", inValue);	//this should pick up the close bracket properly
-
+	css_states[betweenTags] = State(betweenTags);
+	css_states[betweenTags].AddLexeme("tagName", "[A-Za-z]{1,}[1-6]?", betweenTags, true);
+	css_states[betweenTags].AddLexeme("classNamePeriod", ".", inClassName, false);
+	css_states[betweenTags].AddLexeme("idNamePoundSign", "#", inIdName, false);
+	css_states[betweenTags].AddLexeme("attributeStartBracket", "[", inAttributeName, false);
+	css_states[betweenTags].AddLexeme("relationalOperator", "[ ]?[,>+~]{1,1}[ ]?", betweenTags, true);
+	css_states[betweenTags].AddLexeme("relationalOperator", "[ ]{1,}", betweenTags, true);
+	css_states[inClassName] = State(inClassName);
+	css_states[inClassName].AddLexeme("className", "[A-Za-z\\-_]{1,}[A-Za-z\\-_0-9]?", betweenTags, true);	//this has a problem at the dash. Go through it again.
+	css_states[inClassName].AddLexeme("attributeStartBracket", "[", inAttributeName, false);
+	css_states[inIdName].AddLexeme("idName", "[A-Za-z\\-_]{1,}[A-Za-z\\-_0-9]?", betweenTags, true);	//same here... problem. Start with the compiled output and see what the memory contains
+	css_states[inIdName].AddLexeme("attributeStartBracket", "[", inAttributeName, false);
+	css_states[inAttributeName] = State(inAttributeName);
+	css_states[inAttributeName].AddLexeme("attributeName", "[A-Za-z\\-_]{1,}[A-Za-z\\-_0-9]?", inAttributeOperator, true);
+	css_states[inAttributeOperator] = State(inAttributeOperator);
+	css_states[inAttributeOperator].AddLexeme("attributeOperator", "[~|$^*]?=", inAttributeOperator, true);
+	css_states[inAttributeOperator].AddLexeme("singleQuote", "'", inSqValue, false);
+	css_states[inAttributeOperator].AddLexeme("doubleQuote", "\"", inDqValue, false);
+	css_states[inAttributeOperator].AddLexeme("attributeValue", "[A-Za-z\\-\\._0-9]{1,}", inValue, true);
+	css_states[inAttributeOperator].AddLexeme("attributeEndBracket", "]", betweenTags, false);
+	css_states[inValue] = State(inValue);
+	css_states[inValue].AddLexeme("attributeEndBracket", "]", betweenTags, false);
+	css_states[inSqValue] = State(inSqValue);
+	css_states[inSqValue].AddLexeme("attributeValue", "[A-Za-z \\-._0-9]{1,}", inSqValue, true);
+	css_states[inSqValue].AddLexeme("singleQuote", "'", inValue, false);	//this should pick up the close bracket properly
+	css_states[inDqValue] = State(inDqValue);
+	css_states[inDqValue].AddLexeme("attributeValue", "[A-Za-z \\-._0-9]{1,}", inDqValue, true);
+	css_states[inDqValue].AddLexeme("doubleQuote", "\"", inValue, false);	//this should pick up the close bracket properly
 }
 
 
@@ -57,35 +56,32 @@ TokenStream CSS_Lexer::Lex(string line, unsigned int count)
 	unsigned int currentState = start;
 	int lineNumber = 1;
 	const string lines = line;
-	smatch m;
 	bool found;
 	fout << "Line Number  Token                      String" << endl;
 	fout << "----------------------------------------------" << endl;
 	cout << setprecision(2) << fixed << showpoint;
-	string::const_iterator subStart = lines.begin();
-	for(unsigned int i = 0; i < lines.length(); ++i)
+	for(unsigned int subStart = 0; subStart < lines.length(); ++subStart)
 	{
 		found = false;
-		vector<Lexeme>* lexemes = states[(int)currentState].getLexemes();
-		for(unsigned int lindex = 0; !found && *subStart != '\n' && lindex < lexemes->size(); ++lindex)
+		vector<Lexeme>* lexemes = css_states[(int)currentState].getLexemes();
+		for(unsigned int lindex = 0; !found && lines[subStart] != '\n' && lindex < lexemes->size(); ++lindex)
 		{
-			if(regex_search(subStart, lines.end(), m, (*lexemes)[lindex].r, regex_constants::match_continuous))
+			if((*lexemes)[lindex].r->search(lines, subStart))
 			{
-				fout << setw(11) << right << lineNumber << "  " << setw(25) << left << (*lexemes)[lindex].name << "  " << m[0] << endl;
-				ts.AddToken(Token(lineNumber, (*lexemes)[lindex].name, m[0]));
-				i += m[0].length() - 1;
-				subStart += m[0].length() - 1;
+				fout << setw(11) << right << lineNumber << "  " << setw(25) << left << (*lexemes)[lindex].name << "  "
+					<< (*lexemes)[lindex].r->getLastMatch() << endl;
+				ts.AddToken(Token(lineNumber, (*lexemes)[lindex].name, (*lexemes)[lindex].r->getLastMatch()));
+				subStart += (*lexemes)[lindex].r->getLastMatch().length() - 1;
 				currentState = (*lexemes)[lindex].moveTo;
 				found = true;
 			}
 		}
-		if(!found && *subStart != '\n')
+		if(!found && lines[subStart] != '\n')
 		{
-			fout << setw(11) << right << lineNumber << "                             " << left << lines[i] << endl;
+			fout << setw(11) << right << lineNumber << "                             " << left << lines[subStart] << endl;
 		}
-		if(*subStart == '\n')
+		if(lines[subStart] == '\n')
 			++lineNumber;
-		++subStart;
 	}
 	fout.close();
 	return ts;

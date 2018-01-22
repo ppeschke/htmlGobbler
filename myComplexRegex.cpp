@@ -262,20 +262,25 @@ pair<vector<unsigned char>, bool> myComplexRegex::extractRange(string s, unsigne
 				escaped = true;
 			break;
 		case '-':
-			++i;
+			if(escaped)
+				c.first.push_back(s[i]);
+			else
 			{
-				unsigned char begin = (*(--c.first.end())) + 1;	//last character we extracted plus one
-				unsigned char end = s[i];
-				if(end < begin)
+				++i;
 				{
-					unsigned char temp;
-					temp = begin;
-					begin = end;
-					end = temp;
+					unsigned char begin = (*(--c.first.end())) + 1;	//last character we extracted plus one
+					unsigned char end = s[i];
+					if(end < begin)
+					{
+						unsigned char temp;
+						temp = begin;
+						begin = end;
+						end = temp;
+					}
+					//string pattern = "<!?[A-Za-z]{1,}[1-6]?";
+					for(; begin <= end; ++begin)
+						c.first.push_back(begin);
 				}
-				//string pattern = "<!?[A-Za-z]{1,}[1-6]?";
-				for(; begin <= end; ++begin)
-					c.first.push_back(begin);
 			}
 			break;
 		default:

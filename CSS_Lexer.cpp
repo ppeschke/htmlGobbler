@@ -25,7 +25,7 @@ CSS_Lexer::CSS_Lexer()
 	css_states[inAttributeOperator].AddLexeme("attributeOperator", "[~|$^*]?=", inAttributeOperator, true);
 	css_states[inAttributeOperator].AddLexeme("singleQuote", "'", inSqValue, false);
 	css_states[inAttributeOperator].AddLexeme("doubleQuote", "\"", inDqValue, false);
-	css_states[inAttributeOperator].AddLexeme("attributeValue", "[A-Za-z\\-\\._0-9]{1,}", inValue, true);
+	css_states[inAttributeOperator].AddLexeme("attributeValue", "[A-Za-z\\-._0-9]{1,}", inValue, true);
 	css_states[inAttributeOperator].AddLexeme("attributeEndBracket", "]", betweenTags, false);
 	css_states[inValue] = State(inValue);
 	css_states[inValue].AddLexeme("attributeEndBracket", "]", betweenTags, false);

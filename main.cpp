@@ -107,7 +107,7 @@ int main()
 			{
 				synonym = synonym.substr(1, 5);
 				section = section.substr(1, 3);
-				enrollment = enrollment.substr(1, enrollment.size() - 2);
+				enrollment = enrollment.substr(enrollment.find('['), enrollment.find(']')-enrollment.find('[') + 1);
 			}
 			if(room != "")
 				room = room.substr(1);	//remove space before room

@@ -39,7 +39,7 @@ myComplexRegex::myComplexRegex(const myComplexRegex & orig) : myRegex(orig)
 {
 	sectionCount = orig.sectionCount;
 	sections = orig.sections;
-	unsigned int size = sections.size() * 128;
+	size_t size = sections.size() * 128;
 	allowedCharacters = new bool[size];
 	for(unsigned int i = 0; i < size; ++i)
 	{
@@ -137,7 +137,7 @@ vector<Section> myComplexRegex::compile(const string s)
 	{
 		sections.push_back(extractPart(s, i));
 	}
-	for(vector<Section>::iterator i = sections.begin(); i != sections.end(); ++i)
+	/*for(vector<Section>::iterator i = sections.begin(); i != sections.end(); ++i)
 	{
 		if((*i).invert)
 			cout << "Not: ";
@@ -150,7 +150,7 @@ vector<Section> myComplexRegex::compile(const string s)
 		else
 			cout << (*i).maxCount;
 		cout << '}' << endl;
-	}
+	}*/
 	return sections;
 }
 
